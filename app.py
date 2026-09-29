@@ -6,13 +6,13 @@ from scipy.optimize import minimize
 # Page configuration
 st.set_page_config(page_title="Matplotlib Generator", layout="centered")
 
-st.title("Interactive Plot Generator")
-st.write("Adjust the parameters on the left to update the plot.")
+st.title("Hose Calculator App by [ORUA](https://orua.auckland.ac.nz)")
+st.write("Adjust the configuration on the left to update the hose solution and visualisation.")
 
 # ---------------------------------------------------------
 # 1. User Inputs (Sidebar Controls)
 # ---------------------------------------------------------
-st.sidebar.header("Hose Calculator App")
+st.sidebar.header("Hose Configuration")
 
 val1 = st.sidebar.slider("Number of Rollers", min_value=8, max_value=25, value=10, step=1)
 val2 = st.sidebar.slider("Disk Diameter (mm)", min_value=19, max_value=203, value=51, step=1)
