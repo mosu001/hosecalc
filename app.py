@@ -2,7 +2,7 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import minimize
-import plotly.express as px
+import plotly.graph_objects as go
 
 # Page configuration
 st.set_page_config(page_title="Matplotlib Generator", layout="centered")
@@ -24,7 +24,7 @@ val4 = st.sidebar.slider("Target Pitch (mm)", min_value=0.0, max_value=20.0, val
 # 2. Plot Generation Logic
 # ---------------------------------------------------------
 TOL = 1e-8
-fig = plt.figure(figsize=(6, 6))
+fig = go.Figure()
 
 def closest_points_between_segments(p0, p1, q0, q1):
     """
@@ -80,10 +80,7 @@ def simulate_hose(degrees_clockwise, num_rollers, diameter, dist_between_disks, 
     d = diameter
     l = dist_between_disks
     alpha = degrees_clockwise / 360 * 2 * np.pi
-
-    if draw:
-        ax = fig.add_subplot(projection='3d')
-    
+   
     # Draw disk one
     center_x, center_y = 0.0, 0.0
     radius = d / 2.0
@@ -95,7 +92,12 @@ def simulate_hose(degrees_clockwise, num_rollers, diameter, dist_between_disks, 
     z = np.full(theta.shape, 0.0)  # Z stays constant
 
     if draw:
-        ax.plot(x, y, z, color='blue', linewidth=2, label='Disk 1')
+        fig.add_trace(go.Scatter3d(
+            x=x, y=y, z=z,
+            mode='lines',
+            line=dict(color='blue', width=4),
+            name='Disk 1'
+        ))
 
     # Draw disk two
     center_x, center_y = 0.0, 0.0
@@ -108,7 +110,12 @@ def simulate_hose(degrees_clockwise, num_rollers, diameter, dist_between_disks, 
     zp = np.full(theta.shape, l)  # Z stays constant
 
     if draw:
-        ax.plot(xp, yp, zp, color='cyan', linewidth=2, label='Disk 2')
+        fig.add_trace(go.Scatter3d(
+            x=xp, y=yp, z=zp,
+            mode='lines',
+            line=dict(color='cyan', width=4),
+            name='Disk 2'
+        ))
 
     theta = np.linspace(0, 2 * np.pi, n)
 
@@ -126,7 +133,14 @@ def simulate_hose(degrees_clockwise, num_rollers, diameter, dist_between_disks, 
     u = [None] * (n + 2)
     for i in range(0, n):
         if draw:
-            ax.plot([x[i], xp[i]], [y[i], yp[i]], [z[i], zp[i]], color='red', linewidth=2)
+            fig.add_trace(go.Scatter3d(
+                x=[x[i], xp[i]],
+                y=[y[i], yp[i]],
+                z=[z[i], zp[i]],
+                mode='lines',
+                line=dict(color='red', width=4),
+                name='Disk Connector'
+            ))
         p[i] = np.array([x[i], y[i], z[i]])
         q[i] = np.array([xp[i], yp[i], zp[i]])
         v[i] = q[i] - p[i]
@@ -179,16 +193,34 @@ def simulate_hose(degrees_clockwise, num_rollers, diameter, dist_between_disks, 
 
         s[i + 1] = sw
         if draw:
-            ax.plot([s[i][0], s[i + 1][0]], [s[i][1], s[i + 1][1]], [s[i][2], s[i + 1][2]],
-                color='magenta', linewidth=2)
-
+            fig.add_trace(go.Scatter3d(
+                x=[s[i][0], s[i + 1][0]],
+                y=[s[i][1], s[i + 1][1]],
+                z=[s[i][2], s[i + 1][2]],
+                mode='lines',
+                line=dict(color='magenta', width=4),
+                name='Segment Line'
+            ))
 
     r = p[0].copy()
     r[2] = q[0][2]
     if draw:
-        ax.plot([p[0][0], r[0]], [p[0][1], r[1]], [p[0][2], r[2]], color='green', linewidth=2)
-        ax.plot([p[0][0], r[0]], [p[0][1], r[1]], [p[0][2], target_pitch], color='black', linewidth=2)
-
+        fig.add_trace(go.Scatter3d(
+            x=[p[0][0], r[0]],
+            y=[p[0][1], r[1]],
+            z=[p[0][2], r[2]],
+            mode='lines',
+            line=dict(color='green', width=4),
+            name='Point Line'
+        ))
+        fig.add_trace(go.Scatter3d(
+            x=[p[0][0], r[0]],
+            y=[p[0][1], r[1]],
+            z=[p[0][2], target_pitch],
+            mode='lines',
+            line=dict(color='black', width=4),
+            name='Target Pitch'
+        ))
     [st, pt] = closest_points_between_segments(s[n], s[n + 1], p[0], r)
 
     assert(abs(pt[0] - p[0][0]) <= TOL)
@@ -203,19 +235,20 @@ def simulate_hose(degrees_clockwise, num_rollers, diameter, dist_between_disks, 
 
     if draw:
         # Label, etc
-        ax.set_xlabel('X Axis')
-        ax.set_ylabel('Y Axis')
-        ax.set_zlabel('Z Axis')
-        ax.set_title(f'Degrees clockwise = {degrees_clockwise:.4f}, Pitch error = {diff:.4f}')
-        ax.legend()
-
-        # Keep layout proportional so the circle doesn't look like an ellipse
-        ax.set_box_aspect([1, 1, 1]) 
-
-#        ax.view_init(elev=-45, azim=30, roll=75)
-        ax.view_init(elev=-15, azim=20, roll=90)
-
-        plt.show()
+        camera = dict(
+            eye=dict(x=1.32, y=0.48, z=-0.38)
+        )
+        fig.update_layout(
+            title=f'Degrees clockwise = {degrees_clockwise:.4f}, Pitch error = {diff:.4f}',
+            scene=dict(
+                xaxis_title="X Axis",
+                yaxis_title="Y Axis",
+                zaxis_title="Z Axis",
+                aspectmode="data",  # Ensures 1:1:1 scale ratio, matching Matplotlib's default
+                camera=camera
+            ),
+            margin=dict(l=0, r=0, b=0, t=40)
+        )
 
     return diff
 
