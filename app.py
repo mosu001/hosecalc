@@ -234,9 +234,12 @@ def simulate_hose(degrees_clockwise, num_rollers, diameter, dist_between_disks, 
     print("DIFF = ", diff)
 
     if draw:
-        # Label, etc
+        # Camera configuration matching elev=-15, azim=20, roll=90
         camera = dict(
-            eye=dict(x=1.32, y=0.48, z=-0.38)
+            # Camera position in 3D space
+            eye=dict(x=1.32, y=0.48, z=-0.38),
+            # Rotates the camera view around its axis (Roll = 90 deg)
+            up=dict(x=-0.34, y=0.94, z=0.0)
         )
         fig.update_layout(
             title=f'Degrees clockwise = {degrees_clockwise:.4f}, Pitch error = {diff:.4f}',
