@@ -23,7 +23,7 @@ val4 = st.sidebar.slider("Target Pitch (mm)", min_value=0.0, max_value=20.0, val
 # 2. Plot Generation Logic
 # ---------------------------------------------------------
 TOL = 1e-8
-fig = plt.figure(figsize=(10, 10))
+fig = plt.figure(figsize=(8, 8))
 
 def closest_points_between_segments(p0, p1, q0, q1):
     """
