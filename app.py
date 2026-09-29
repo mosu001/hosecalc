@@ -14,10 +14,10 @@ st.write("Adjust the parameters on the left to update the plot.")
 # ---------------------------------------------------------
 st.sidebar.header("Hose Calculator App")
 
-val1 = st.sidebar.number_input("Number of Rollers", min_value=0, value=10, step=1)
-val2 = st.sidebar.number_input("Disk Diameter (mm)", min_value=0.0, value=51.0, step=1.0)
-val3 = st.sidebar.slider("Distance between Disks (mm)", min_value=0.0, value=65.0, step=1.0)
-val4 = st.sidebar.slider("Target Pitch (mm)", min_value=0.0, value=10.5, step=0.1)
+val1 = st.sidebar.slider("Number of Rollers", min_value=8, max_value=25, value=10, step=1)
+val2 = st.sidebar.slider("Disk Diameter (mm)", min_value=19, max_value=203, value=51, step=1)
+val3 = st.sidebar.slider("Distance between Disks (mm)", min_value=45, max_value=65.0, value=65.0, step=1.0)
+val4 = st.sidebar.slider("Target Pitch (mm)", min_value=0.0, max_value=20.0, value=10.5, step=0.1)
 
 # ---------------------------------------------------------
 # 2. Plot Generation Logic
