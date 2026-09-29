@@ -2,6 +2,8 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import minimize
+import mpld3
+import streamlit.components.v1 as components
 
 # Page configuration
 st.set_page_config(page_title="Matplotlib Generator", layout="centered")
@@ -23,7 +25,7 @@ val4 = st.sidebar.slider("Target Pitch (mm)", min_value=0.0, max_value=20.0, val
 # 2. Plot Generation Logic
 # ---------------------------------------------------------
 TOL = 1e-8
-fig = plt.figure(figsize=(8, 8))
+fig = plt.figure(figsize=(6, 6))
 
 def closest_points_between_segments(p0, p1, q0, q1):
     """
@@ -249,7 +251,8 @@ if result.success:
     degrees_clockwise = optimized_x[0]
     simulate_hose(degrees_clockwise, num_rollers, diameter, dist_between_disks, target_pitch)        
 
-# ---------------------------------------------------------
-# 3. Render Plot in App
-# ---------------------------------------------------------
-st.pyplot(fig)
+# Convert Matplotlib figure to HTML
+fig_html = mpld3.fig_to_html(fig)
+
+# Render HTML in Streamlit
+components.html(fig_html, height=450)
