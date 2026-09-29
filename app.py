@@ -139,7 +139,7 @@ def simulate_hose(degrees_clockwise, num_rollers, diameter, dist_between_disks, 
                 z=[z[i], zp[i]],
                 mode='lines',
                 line=dict(color='red', width=4),
-                name='Disk Connector'
+                name=f'Roller {i:d}'
             ))
         p[i] = np.array([x[i], y[i], z[i]])
         q[i] = np.array([xp[i], yp[i], zp[i]])
@@ -199,7 +199,7 @@ def simulate_hose(degrees_clockwise, num_rollers, diameter, dist_between_disks, 
                 z=[s[i][2], s[i + 1][2]],
                 mode='lines',
                 line=dict(color='magenta', width=4),
-                name='Segment Line'
+                name=f'Segment Line {i:d}'
             ))
 
     r = p[0].copy()
@@ -211,7 +211,7 @@ def simulate_hose(degrees_clockwise, num_rollers, diameter, dist_between_disks, 
             z=[p[0][2], r[2]],
             mode='lines',
             line=dict(color='green', width=4),
-            name='Point Line'
+            name='Top Line'
         ))
         fig.add_trace(go.Scatter3d(
             x=[p[0][0], r[0]],
