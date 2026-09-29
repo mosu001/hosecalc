@@ -2,8 +2,7 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import minimize
-import mpld3
-import streamlit.components.v1 as components
+import plotly.express as px
 
 # Page configuration
 st.set_page_config(page_title="Matplotlib Generator", layout="centered")
@@ -252,7 +251,4 @@ if result.success:
     simulate_hose(degrees_clockwise, num_rollers, diameter, dist_between_disks, target_pitch)        
 
 # Convert Matplotlib figure to HTML
-fig_html = mpld3.fig_to_html(fig)
-
-# Render HTML in Streamlit
-components.html(fig_html, height=450)
+st.plotly_chart(fig, use_container_width=True)

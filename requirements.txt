@@ -2,5 +2,4 @@ streamlit
 matplotlib
 numpy
 scipy
-mpld3
-streamlit-embedcode
+plotly
