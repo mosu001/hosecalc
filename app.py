@@ -285,19 +285,19 @@ constants = (num_rollers, diameter, dist_between_disks, target_pitch)
 
 degrees_clockwise  = 10 # DIFF =  -0.7244619856623871
 #degrees_clockwise  = 11 # DIFF =  0.216462153142011
-#simulate_hose(degrees_clockwise, num_rollers, diameter, dist_between_disks, target_pitch)
-result = minimize(
-    fun  = objective,
-    x0   = degrees_clockwise,
-    args = constants
-)
-if result.success:
-    optimized_x = result.x
-    print(f"Optimization successful!")
-    print(f"Optimized variables -> x: {optimized_x[0]:.4f}")
-    print(f"Minimum function value: {result.fun:.4f}")
-    degrees_clockwise = optimized_x[0]
-    simulate_hose(degrees_clockwise, num_rollers, diameter, dist_between_disks, target_pitch)        
+simulate_hose(degrees_clockwise, num_rollers, diameter, dist_between_disks, target_pitch)
+# result = minimize(
+#     fun  = objective,
+#     x0   = degrees_clockwise,
+#     args = constants
+# )
+# if result.success:
+#     optimized_x = result.x
+#     print(f"Optimization successful!")
+#     print(f"Optimized variables -> x: {optimized_x[0]:.4f}")
+#     print(f"Minimum function value: {result.fun:.4f}")
+#     degrees_clockwise = optimized_x[0]
+#     simulate_hose(degrees_clockwise, num_rollers, diameter, dist_between_disks, target_pitch)        
 
 # Convert Matplotlib figure to HTML
 st.plotly_chart(fig, use_container_width=True)
