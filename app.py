@@ -79,7 +79,7 @@ def simulate_hose(degrees_clockwise, num_rollers, diameter, dist_between_disks, 
     n = num_rollers
     d = diameter
     l = dist_between_disks
-    alpha = degrees_clockwise / 360 * 2 * np.pi
+    alpha = degrees_clockwise / 360.0 * 2 * np.pi
    
     # Draw disk one
     center_x, center_y = 0.0, 0.0
