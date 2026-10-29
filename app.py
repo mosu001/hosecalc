@@ -165,39 +165,54 @@ def simulate_hose(degrees_clockwise, num_rollers, diameter, dist_between_disks, 
     s[0] = p[0]
     for i in range(0, 2 * n + 1):
         ri = i % n
-        A[i] = np.zeros([4, 4])
-        b[i] = np.zeros(4)
-        A[i][0, 0] = u[ri][0] # w_i, x normal
-        A[i][0, 1] = u[ri][1] # w_i, y normal
-        A[i][0, 2] = u[ri][2] # w_i, z normal
-        b[i][0] = 0.0 # rhs normal
+        A[i] = np.zeros([7, 7])
+        b[i] = np.zeros(7)
+
+        A[i][0, 0] = 1
+        A[i][0, 3] = -1
+        b[i][0] = s[0][0]
+        A[i][1, 1] = 1
+        A[i][1, 4] = -1
+        b[i][1] = s[0][1]
+        A[i][2, 2] = 1
+        A[i][2, 5] = -1
+        b[i][2] = s[0][2]
+
                         
-        A[i][1, 0] = 1 # w_i, x intersection x
-        A[i][1, 3] = - u[ri + 1][0] # t_i intersection x
-        b[i][1] = p[ri + 1][0] - s[i][0] # rhs intersection x
+        A[i][3, 3] = u[ri + 1][0]
+        A[i][3, 4] = u[ri + 1][1]
+        A[i][3, 5] = u[ri + 1][2]
 
-        A[i][2, 1] = 1 # w_i, y intersection y
-        A[i][2, 3] = - u[ri + 1][1] # t_i intersection y
-        b[i][2] = p[ri + 1][1] - s[i][1] # rhs intersection y
-
-        A[i][3, 2] = 1 # w_i, z intersection z
-        A[i][3, 3] = - u[ri + 1][2] # t_i intersection z
-        b[i][3] = p[ri + 1][2] - s[i][2] # rhs intersection z
+        A[i][4, 0] = 1
+        A[i][4, 3] = -u[ri + 1][0]
+        b[i][4] = p[ri + 1][0]
+        A[i][5, 1] = 1
+        A[i][5, 4] = -u[ri + 1][1]
+        b[i][5] = p[ri + 1][1]
+        A[i][6, 2] = 1
+        A[i][6, 5] = -u[ri + 1][2]
+        b[i][6] = p[ri + 1][2]
 
         sol = np.linalg.solve(A[i], b[i])
-        w = np.array([sol[0], sol[1], sol[2]])
-        sw = s[i] + w
-        t = sol[3]
-        st = p[ri + 1] + t * u[ri + 1]
+        snxt = np.array([sol[0], sol[1], sol[2]]) 
+        d = np.array([sol[3], sol[4], sol[5]])
+        t = sol[7]
+        s1 = snxt
+        s2 = s + d
+        s3 = p[ri + 1] + t * u[ri + 1]
 
-        dist = np.linalg.norm(sw - st)
+        dist1 = np.linalg.norm(s1 - s2)
+        dist2 = np.linalg.norm(s2 - s3)
+        dist3 = np.linalg.norm(s3 - s1)
 #        print(i)
 #        print(A[i])
 #        print(b[i])
 #        print(dist)
-        assert(dist <= TOL)
+        assert(dist1 <= TOL)
+        assert(dist2 <= TOL)
+        assert(dist3 <= TOL)
 
-        s[i + 1] = sw
+        s[i + 1] = snxt
         if draw:
             fig.add_trace(go.Scatter3d(
                 x=[s[i][0], s[i + 1][0]],
