@@ -127,6 +127,11 @@ def simulate_hose(degrees_clockwise, num_rollers, diameter, dist_between_disks, 
     yp = center_y + radius * np.sin(theta - alpha)
     zp = np.full(theta.shape, l)  # Z stays constant
 
+    eta = np.linspace(0, 2 * np.pi, 10 * n)
+    xc = center_x + radius * np.cos(eta)
+    yc = center_y + radius * np.sin(eta)
+    zc = target_pitch * eta / (2 * np.pi)
+
     p = [None] * (n + 2)
     q = [None] * (n + 2)
     v = [None] * (n + 2)
@@ -220,6 +225,14 @@ def simulate_hose(degrees_clockwise, num_rollers, diameter, dist_between_disks, 
             mode='lines',
             line=dict(color='black', width=4),
             name='Target Pitch'
+        ))
+        fig.add_trace(go.Scatter3d(
+            x = xc,
+            y = yc,
+            z = zc,
+            mode='lines',
+            line=dict(color='purple', width=4),
+            name='Coil'
         ))
     [st, pt] = closest_points_between_segments(s[n], s[n + 1], p[0], r)
 
