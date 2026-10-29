@@ -4,8 +4,6 @@ import numpy as np
 from scipy.optimize import minimize
 import plotly.graph_objects as go
 
-TOWARDS_TURN = True
-
 # Page configuration
 st.set_page_config(page_title="Matplotlib Generator", layout="centered")
 
@@ -125,25 +123,15 @@ def simulate_hose(degrees_clockwise, num_rollers, diameter, dist_between_disks, 
     y = center_y + radius * np.sin(theta)
     z = np.full(theta.shape, 0.0)  # Z stays constant
 
-    if TOWARDS_TURN:
-      # Winding towards the turn
-      z = np.full(theta.shape, l)  # Z stays constant
-      xp = center_x + radius * np.cos(theta + alpha)
-      yp = center_y + radius * np.sin(theta + alpha)
-    else:
-      # Winding away from the turn
-      xp = center_x + radius * np.cos(theta - alpha)
-      yp = center_y + radius * np.sin(theta - alpha)
-      zp = np.full(theta.shape, l)  # Z stays constant
+    xp = center_x + radius * np.cos(theta - alpha)
+    yp = center_y + radius * np.sin(theta - alpha)
+    zp = np.full(theta.shape, l)  # Z stays constant
 
 
     eta = np.linspace(0, 4 * np.pi, 10 * n)
     xc = center_x + radius * np.cos(eta)
     yc = center_y + radius * np.sin(eta)
-    if TOWARDS_TURN:
-        zc = np.full(eta.shape, l) - target_pitch * eta / (2 * np.pi)
-    else:
-        zc = target_pitch * eta / (2 * np.pi)
+    zc = target_pitch * eta / (2 * np.pi)
 
     p = [None] * (n + 2)
     q = [None] * (n + 2)
@@ -175,12 +163,8 @@ def simulate_hose(degrees_clockwise, num_rollers, diameter, dist_between_disks, 
     A = [None] * (2 * n + 1)
     b = [None] * (2 * n + 1)
     s = [None] * (2 * n + 2)
-    if TOWARDS_TURN:
-        fp = q[0]
-        lp = p[0]
-    else:
-        fp = p[0]
-        lp = q[0]
+    fp = p[0]
+    lp = q[0]
     s[0] = fp
     for i in range(0, 2 * n + 1):
         ri = i % n
