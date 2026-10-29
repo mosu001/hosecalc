@@ -4,6 +4,8 @@ import numpy as np
 from scipy.optimize import minimize
 import plotly.graph_objects as go
 
+TOWARDS_TURN = True
+
 # Page configuration
 st.set_page_config(page_title="Matplotlib Generator", layout="centered")
 
@@ -123,14 +125,25 @@ def simulate_hose(degrees_clockwise, num_rollers, diameter, dist_between_disks, 
     y = center_y + radius * np.sin(theta)
     z = np.full(theta.shape, 0.0)  # Z stays constant
 
-    xp = center_x + radius * np.cos(theta - alpha)
-    yp = center_y + radius * np.sin(theta - alpha)
-    zp = np.full(theta.shape, l)  # Z stays constant
+    if TOWARDS_TURN:
+      # Winding towards the turn
+      z = np.full(theta.shape, l)  # Z stays constant
+      xp = center_x + radius * np.cos(theta + alpha)
+      yp = center_y + radius * np.sin(theta + alpha)
+    else:
+      # Winding away from the turn
+      xp = center_x + radius * np.cos(theta - alpha)
+      yp = center_y + radius * np.sin(theta - alpha)
+      zp = np.full(theta.shape, l)  # Z stays constant
+
 
     eta = np.linspace(0, 4 * np.pi, 10 * n)
     xc = center_x + radius * np.cos(eta)
     yc = center_y + radius * np.sin(eta)
-    zc = target_pitch * eta / (2 * np.pi)
+    if TOWARDS_TURN:
+        zc = np.full(eta.shape, l) - target_pitch * eta / (2 * np.pi)
+    else:
+        zc = target_pitch * eta / (2 * np.pi)
 
     p = [None] * (n + 2)
     q = [None] * (n + 2)
@@ -162,7 +175,13 @@ def simulate_hose(degrees_clockwise, num_rollers, diameter, dist_between_disks, 
     A = [None] * (2 * n + 1)
     b = [None] * (2 * n + 1)
     s = [None] * (2 * n + 2)
-    s[0] = p[0]
+    if TOWARDS_TURN:
+        fp = q[0]
+        lp = p[0]
+    else:
+        fp = p[0]
+        lp = q[0]
+    s[0] = fp
     for i in range(0, 2 * n + 1):
         ri = i % n
         A[i] = np.zeros([7, 7])
@@ -225,21 +244,21 @@ def simulate_hose(degrees_clockwise, num_rollers, diameter, dist_between_disks, 
                 name=f'Segment Line {i:d}'
             ))
 
-    r = p[0].copy()
-    r[2] = q[0][2]
+    r = fp.copy()
+    r[2] = lp[2]
     if draw:
         fig.add_trace(go.Scatter3d(
-            x=[p[0][0], r[0]],
-            y=[p[0][1], r[1]],
-            z=[p[0][2], r[2]],
+            x=[fp[0], r[0]],
+            y=[fp[1], r[1]],
+            z=[fp[2], r[2]],
             mode='lines',
             line=dict(color='green', width=4),
             name='Top Line'
         ))
         fig.add_trace(go.Scatter3d(
-            x=[p[0][0], r[0]],
-            y=[p[0][1], r[1]],
-            z=[p[0][2], target_pitch],
+            x=[fp[0], r[0]],
+            y=[fp[1], r[1]],
+            z=[fp[2], target_pitch],
             mode='lines',
             line=dict(color='black', width=4),
             name='Target Pitch'
@@ -252,17 +271,17 @@ def simulate_hose(degrees_clockwise, num_rollers, diameter, dist_between_disks, 
             line=dict(color='purple', width=4),
             name='Coil'
         ))
-    [st, pt] = closest_points_between_segments(s[n], s[n + 1], p[0], r)
+    [st, pt] = closest_points_between_segments(s[n], s[n + 1], fp, r)
 
-    assert(abs(pt[0] - p[0][0]) <= TOL)
-    assert(abs(pt[1] - p[0][1]) <= TOL)
-    pitch_3d = np.linalg.norm(pt - p[0])
-    pitch_2d = pt[2] - p[0][2]    
+    assert(abs(pt[0] - fp[0]) <= TOL)
+    assert(abs(pt[1] - fp[1]) <= TOL)
+    pitch_3d = np.linalg.norm(pt - fp)
+    pitch_2d = pt[2] - fp[2]    
     assert(abs(pitch_3d - pitch_2d) <= TOL)
     simulated_pitch = pitch_3d
 
     diff = simulated_pitch - target_pitch
-    print("DIFF = ", diff)
+    print(f"degrees_clockwise = {degrees_clockwise}, simulated_pitch = {simulated_pitch}, DIFF = {diff}")
 
     if draw:
         # Camera configuration matching elev=-15, azim=20, roll=90
