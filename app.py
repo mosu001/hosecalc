@@ -164,30 +164,31 @@ def simulate_hose(degrees_clockwise, num_rollers, diameter, dist_between_disks, 
     s = [None] * (2 * n + 2)
     s[0] = p[0]
     for i in range(0, 2 * n + 1):
+        ri = i % n
         A[i] = np.zeros([4, 4])
         b[i] = np.zeros(4)
-        A[i][0, 0] = u[i][0] # w_i, x normal
-        A[i][0, 1] = u[i][1] # w_i, y normal
-        A[i][0, 2] = u[i][2] # w_i, z normal
+        A[i][0, 0] = u[ri][0] # w_i, x normal
+        A[i][0, 1] = u[ri][1] # w_i, y normal
+        A[i][0, 2] = u[ri][2] # w_i, z normal
         b[i][0] = 0.0 # rhs normal
                         
         A[i][1, 0] = 1 # w_i, x intersection x
-        A[i][1, 3] = - u[i + 1][0] # t_i intersection x
-        b[i][1] = p[i + 1][0] - s[i][0] # rhs intersection x
+        A[i][1, 3] = - u[ri + 1][0] # t_i intersection x
+        b[i][1] = p[ri + 1][0] - s[i][0] # rhs intersection x
 
         A[i][2, 1] = 1 # w_i, y intersection y
-        A[i][2, 3] = - u[i + 1][1] # t_i intersection y
-        b[i][2] = p[i + 1][1] - s[i][1] # rhs intersection y
+        A[i][2, 3] = - u[ri + 1][1] # t_i intersection y
+        b[i][2] = p[ri + 1][1] - s[i][1] # rhs intersection y
 
         A[i][3, 2] = 1 # w_i, z intersection z
-        A[i][3, 3] = - u[i + 1][2] # t_i intersection z
-        b[i][3] = p[i + 1][2] - s[i][2] # rhs intersection z
+        A[i][3, 3] = - u[ri + 1][2] # t_i intersection z
+        b[i][3] = p[ri + 1][2] - s[i][2] # rhs intersection z
 
         sol = np.linalg.solve(A[i], b[i])
         w = np.array([sol[0], sol[1], sol[2]])
         sw = s[i] + w
         t = sol[3]
-        st = p[i + 1] + t * u[i + 1]
+        st = p[ri + 1] + t * u[ri + 1]
 
         dist = np.linalg.norm(sw - st)
 #        print(i)
