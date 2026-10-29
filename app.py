@@ -159,11 +159,11 @@ def simulate_hose(degrees_clockwise, num_rollers, diameter, dist_between_disks, 
     v[n + 1] = v[1]
     u[n + 1] = u[1]
 
-    A = [None] * (n + 1)
-    b = [None] * (n + 1)
-    s = [None] * (n + 2)
+    A = [None] * (2 * n + 1)
+    b = [None] * (2 * n + 1)
+    s = [None] * (2 * n + 2)
     s[0] = p[0]
-    for i in range(0, n + 1):
+    for i in range(0, 2 * n + 1):
         A[i] = np.zeros([4, 4])
         b[i] = np.zeros(4)
         A[i][0, 0] = u[i][0] # w_i, x normal
